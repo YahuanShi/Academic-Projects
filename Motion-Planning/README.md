@@ -4,8 +4,6 @@
 
 This course provides a comprehensive and unified introduction to motion planning, covering geometric, kinodynamic, and optimal planning methods. Topics span multiple algorithmic families (search-, sampling-, and optimization-based), with a strong emphasis on both theory and practical tools used in robotics, autonomous systems, and industrial automation.
 
-The course was co-taught by Dr. Andreas Orthey (Realtime Robotics) and Dr. Wolfgang Hönig (TU Berlin), and emphasizes the ability to compare, implement, and apply motion planning algorithms in real-world contexts.
-
 ---
 
 ## 📘 Learning Outcomes
