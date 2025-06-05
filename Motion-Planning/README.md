@@ -36,14 +36,12 @@ By completing this course, I was able to:
 
 Each assignment included practical programming tasks with theoretical background.
 
-| Assignment | Folder | Description |
+| Assignment | Folder |
 |------------|--------|-------------|
-| Assignment 1 | [`assignment-01-foundations`](./assignment-01-foundations) | Formalization, configuration space, collision checking |
-| Assignment 2 | [`assignment-02-search`](./assignment-02-search) | A* variants, motion primitives, SBPL usage |
-| Assignment 3 | [`assignment-03-sampling`](./assignment-03-sampling) | RRT, PRM, RRT*, OMPL integration |
-| Assignment 4 | [`assignment-04-optimization`](./assignment-04-optimization) | Trajectory optimization using SCP or KOMO |
-
-(*You can adjust folder names if yours differ.*)
+| Assignment 1 | [`assignment-01`](./assignment-01) |
+| Assignment 2 | [`assignment-02`](./assignment-02) |
+| Assignment 3 | [`assignment-03`](./assignment-03) |
+| Assignment 4 | [`assignment-04`](./assignment-04) |
 
 ---
 
