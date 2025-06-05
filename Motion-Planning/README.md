@@ -37,7 +37,7 @@ By completing this course, I was able to:
 Each assignment included practical programming tasks with theoretical background.
 
 | Assignment | Folder |
-|------------|--------|-------------|
+|------------|--------|
 | Assignment 1 | [`assignment-01`](./assignment-01) |
 | Assignment 2 | [`assignment-02`](./assignment-02) |
 | Assignment 3 | [`assignment-03`](./assignment-03) |
