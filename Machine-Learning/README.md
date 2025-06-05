@@ -10,32 +10,32 @@ This course provides a comprehensive foundation in classical and modern machine 
 
 | Lecture | Topic |
 |---------|----------------------------------------------------------|
-| [01-bayes-decision-theory](./01-bayes-decision-theory) | Bayes Decision Theory |
-| [02-parameter-estimation](./02-parameter-estimation) | Parameter Estimation |
-| [03-fisher-discriminant](./03-fisher-discriminant) | Fisher Discriminant |
-| [04-pca](./04-pca) | Principal Component Analysis |
-| [05-learning-theory-kernels](./05-learning-theory-kernels) | Learning Theory & Kernels |
-| [06-svm](./06-svm) | Support Vector Machines |
-| [07-model-selection](./07-model-selection) | Model Selection |
-| [08-neural-networks](./08-neural-networks) | Neural Networks |
-| [09-decision-trees-random-forests](./09-decision-trees-random-forests) | Decision Trees and Random Forests |
-| [10-boosting](./10-boosting) | Boosting |
-| [11-clustering](./11-clustering) | Clustering |
-| [12-kernel-ridge-regression](./12-kernel-ridge-regression) | Kernel Ridge Regression |
-| [13-explainable-ai](./13-explainable-ai) | Explainable AI |
-| [14-product-of-experts](./14-product-of-experts) | Product of Experts |
-| [15-lle](./15-lle) | Low-Dimensional Embedding 1 (LLE) |
-| [16-tsne](./16-tsne) | Low-Dimensional Embedding 2 (t-SNE) |
-| [17-cca](./17-cca) | Component Analysis 1 (CCA) |
-| [18-ica](./18-ica) | Component Analysis 2 (ICA) |
-| [19-representation-learning](./19-representation-learning) | Component Analysis 3 (Representation Learning) |
-| [20-kernel-structured-input](./20-kernel-structured-input) | Kernel Machines 1 (Structured Input) |
-| [21-hidden-markov-models](./21-hidden-markov-models) | Hidden Markov Models |
-| [22-deep-learning-structured-networks](./22-deep-learning-structured-networks) | Deep Learning 1 (Structured Networks) |
-| [23-kernel-bioinformatics](./23-kernel-bioinformatics) | Kernel Machines 2 (Structured Output / Bioinformatics) |
-| [24-anomaly-detection](./24-anomaly-detection) | Kernel Machines 3 (Anomaly Detection) |
-| [25-kpca-rde](./25-kpca-rde) | Kernel Machines 4 (KPCA, RDE) |
-| [26-deep-learning-structured-prediction](./26-deep-learning-structured-prediction) | Deep Learning 2 (Structured Prediction) |
+| 01 | [Bayes Decision Theory](./01-bayes-decision-theory) |
+| 02 | [Parameter Estimation](./02-parameter-estimation) |
+| 03 | [Fisher Discriminant](./03-fisher-discriminant) |
+| 04 | [Principal Component Analysis](./04-pca) |
+| 05 | [Learning Theory & Kernels](./05-learning-theory-kernels) |
+| 06 | [Support Vector Machines](./06-svm) |
+| 07 | [Model Selection](./07-model-selection) |
+| 08 | [Neural Networks](./08-neural-networks) |
+| 09 | [Decision Trees and Random Forests](./09-decision-trees-random-forests) |
+| 10 | [Boosting](./10-boosting) |
+| 11 | [Clustering](./11-clustering) |
+| 12 | [Kernel Ridge Regression](./12-kernel-ridge-regression) |
+| 13 | [Explainable AI](./13-explainable-ai) |
+| 14 | [Product of Experts](./14-product-of-experts) |
+| 15 | [Low-Dimensional Embedding 1 (LLE)](./15-lle) |
+| 16 | [Low-Dimensional Embedding 2 (t-SNE)](./16-tsne) |
+| 17 | [Hidden Markov Models](./21-hidden-markov-models) |
+| 18 | [Component Analysis 1 (CCA)](./17-cca) |
+| 19 | [Component Analysis 2 (ICA)](./18-ica) |
+| 20 | [Component Analysis 3 (Representation Learning)](./19-representation-learning) |
+| 21 | [Kernel Machines 1 (Structured Input)](./20-kernel-structured-input) |
+| 22 | [Kernel Machines 2 (Structured Output / Bioinformatics)](./23-kernel-bioinformatics) |
+| 23 | [Kernel Machines 3 (Anomaly Detection)](./24-anomaly-detection) |
+| 24 | [Kernel Machines 4 (KPCA, RDE)](./25-kpca-rde) |
+| 25 | [Deep Learning 1 (Structured Networks)](./22-deep-learning-structured-networks) |
+| 26 | [Deep Learning 2 (Structured Prediction)](./26-deep-learning-structured-prediction) |
 
 ---
 
