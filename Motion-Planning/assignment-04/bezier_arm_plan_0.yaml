@@ -1,0 +1,4 @@
+plan:
+  type: arm
+  L: [1, 1, 1]
+  states: []

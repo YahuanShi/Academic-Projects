@@ -1,12 +1,12 @@
 # Engineering Data Analytics with Python
 
-## 🎯 Course Description
+## Course Description
 
 This course provides a practical introduction to data analytics for engineers using Python. It covers the entire data analysis pipeline from data cleaning and transformation to visualization, modeling, and interactive web applications. The curriculum also includes foundational Python programming, SQL, APIs, and basic machine learning concepts.
 
 ---
 
-## 📘 Learning Outcomes
+## Learning Outcomes
 
 By the end of this course, I was able to:
 
@@ -19,7 +19,7 @@ By the end of this course, I was able to:
 
 ---
 
-## 🧠 Course Topics
+## Course Topics
 
 - Python fundamentals & Pandas
 - Data cleaning and merging
@@ -31,16 +31,18 @@ By the end of this course, I was able to:
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
-| Task | Folder | Description |
-|------|--------|-------------|
-| [General Task](./general-task) | `general-task` | 6 practical sub-tasks involving data integration, visualization, modeling, and querying |
-| [Case Study](./case-study)     | `case-study`   | Real-world failure tracing and customer risk identification in automotive industry |
+| Task | Description |
+|------|-------------|
+| General Tasks | [`general_tasks_group_20.ipynb`](./general_tasks_group_20.ipynb) — Contains solutions to six practical sub-tasks (data integration, visualization, modeling, querying). Interactive notebook with corresponding HTML export. |
+| Case Study | [`case_study_group_20.ipynb`](./case_study_group_20.ipynb) — Full analysis pipeline for identifying affected customers in the automotive quality issue scenario. Web application implemented in [`case_study_app_group_20.py`](./case_study_app_group_20.py) for interactive results visualization. |
+| Data | [`Data/final_data_group_20.csv`](./Data/final_data_group_20.csv) — Primary dataset used for both general tasks and case study analysis. |
+| Additional Files | [`Additional_Files/`](./Additional_Files/) — Supplementary resources used during the project. |
 
 ---
 
-## 📂 General Task Overview
+## General Task Overview
 
 The general task includes six sub-problems that simulate realistic data analysis challenges faced in engineering settings:
 
@@ -67,7 +69,7 @@ The general task includes six sub-problems that simulate realistic data analysis
 
 ---
 
-## 🧪 Case Study Overview
+## Case Study Overview
 
 In this task, I worked as a data analyst for a fictitious automotive company “217” to investigate a **systemic quality failure** caused by faulty steel used between **June 2012 and July 2014**. The task involved:
 
@@ -85,7 +87,7 @@ In this task, I worked as a data analyst for a fictitious automotive company “
 
 ---
 
-## 🛠️ Tools & Libraries Used
+## Tools & Libraries Used
 
 - Python 3
 - Pandas, NumPy
@@ -97,4 +99,4 @@ In this task, I worked as a data analyst for a fictitious automotive company “
 ---
 
 
-> 📂 Explore each folder to find the full code, notebooks, visualizations, and markdown reports.
+> Explore each folder to find the full code, notebooks, visualizations, and markdown reports.

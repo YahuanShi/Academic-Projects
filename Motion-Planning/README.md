@@ -1,12 +1,12 @@
 # Motion Planning
 
-## 🎯 Course Description
+## Course Description
 
 This course provides a comprehensive and unified introduction to motion planning, covering geometric, kinodynamic, and optimal planning methods. Topics span multiple algorithmic families (search-, sampling-, and optimization-based), with a strong emphasis on both theory and practical tools used in robotics, autonomous systems, and industrial automation.
 
 ---
 
-## 📘 Learning Outcomes
+## Learning Outcomes
 
 By completing this course, I was able to:
 
@@ -20,7 +20,7 @@ By completing this course, I was able to:
 
 ---
 
-## 🧠 Course Structure
+## Course Structure
 
 | Part | Topic |
 |------|--------------------------------------------------------------------|
@@ -32,7 +32,7 @@ By completing this course, I was able to:
 
 ---
 
-## 📁 Assignments
+## Assignments
 
 Each assignment included practical programming tasks with theoretical background.
 
@@ -45,7 +45,7 @@ Each assignment included practical programming tasks with theoretical background
 
 ---
 
-## 🛠️ Tools & Libraries
+## Tools & Libraries
 
 - Python, C++ (for OMPL and SBPL)
 - Open Motion Planning Library (OMPL)
@@ -54,8 +54,8 @@ Each assignment included practical programming tasks with theoretical background
 
 ---
 
-## 📝 Notes
+## Notes
 
 This course significantly deepened my understanding of motion planning across various paradigms, and gave me hands-on experience using academic-grade and industry-grade tools.
 
-> 📂 Browse the assignment folders to view code, trajectories, and theoretical write-ups.
+> Browse the assignment folders to view code, trajectories, and theoretical write-ups.

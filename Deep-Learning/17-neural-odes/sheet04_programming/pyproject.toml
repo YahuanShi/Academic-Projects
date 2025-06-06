@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "sheet07"
+version = "0.1.0"
+description = "Neural ODE programming exercises"
+authors = ["TU Berlin ML Group"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">=3.9, <3.12"
+torch = "^2"
+matplotlib = "^3.7"
+numpy = "^1.24"
+torchdiffeq = "^0.2"
+scipy = "^1.10"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
+ruff = "^0.0.270"
+nbqa = "^1.7.0"
+jupyter = "^1.0.0"
+jupyterlab = "^4.0.1"
+ipympl = "^0.9.3"
+
+[tool.ruff]
+select = [
+    "A", # flake8-builtins
+    "B", # flake8-bugbear
+    "E", # pycodestyle / PEP8
+    "F", # pyflakes
+    "I", # flake8-isort
+    "W", # pycodestyle / PEP8
+]
+ignore = ["E402", "B018"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -70,7 +70,7 @@ This assignment focuses on solving an **image segmentation** task using deep neu
 
 | Metric                | Value |
 |-----------------------|-------|
-| Training Accuracy     | ~0.92 |
+| Training Accuracy     | 0.92 |
 | Validation Accuracy   | 0.63  |
 | Hidden Test Set Accuracy | 0.61 |
 

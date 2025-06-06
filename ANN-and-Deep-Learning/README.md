@@ -29,8 +29,8 @@ After completing this course, I was able to:
 
 | Assignment | Folder | Description |
 |------------|--------|-------------|
-| Assignment 1 | [`assignment-01`](./assignment-01) | **Image Classification** task using CNNs. Built, trained, and optimized convolutional models to classify images into predefined categories (e.g., CIFAR, MNIST or similar datasets). Focus on architectural design, training performance, and evaluation metrics (accuracy, confusion matrix, etc.). |
-| Assignment 2 | [`assignment-02`](./assignment-02) | **Semantic Segmentation** task. Implemented a pixel-wise classification model (e.g., using FCN or U-Net) for identifying and segmenting image regions. Focus on spatial accuracy, loss balancing, and IoU score evaluation. |
+| Assignment 1 | [`assignment-01`](./assignment-01) | **Blood Cell Image Classification**. Built and optimized CNN-based and hybrid architectures to classify 96x96 RGB images of 8 blood cell types. Applied data cleaning, augmentation, class weighting, and transfer learning (DenseNet169, ConvNeXtXLarge, EfficientNetB0 + VGG16 hybrid). Evaluated with accuracy and confusion matrix on both local and hidden test sets. |
+| Assignment 2 | [`assignment-02`](./assignment-02) | **Mars Terrain Semantic Segmentation**. Designed and trained a U-Net-based CNN with residual connections for pixel-wise segmentation of Mars terrain images into 5 classes. Addressed severe class imbalance using weighted loss and oversampling. Evaluated with Mean IoU (excluding background), achieving strong generalization to hidden test set. |
 
 ---
 
