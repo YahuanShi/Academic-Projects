@@ -42,6 +42,18 @@ By the end of this course, I was able to:
 
 ---
 
+## Data Availability
+
+The dataset `final_data_group_20.csv` (~152MB) used in this project is not included in this GitHub repository due to GitHub file size limitations.
+
+To reproduce the results, please place the dataset file in the following directory:
+Data-Analytics-with-Python/Data/final_data_group_20.csv
+
+The code in this repository is configured to automatically load the data from this path. If needed, please contact me to obtain the dataset file.
+
+> ⚠️ Note: The file path `Data-Analytics-with-Python/final_data_group_20.csv` has been added to `.gitignore` to avoid accidental upload of large files to the repository.
+
+---
 ## General Task Overview
 
 The general task includes six sub-problems that simulate realistic data analysis challenges faced in engineering settings:
