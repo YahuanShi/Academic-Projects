@@ -193,3 +193,4 @@ cython_debug/
 .cursorignore
 .cursorindexingignore.DS_Store
 Data-Analytics-with-Python/final_data_group_20.csv
+.DS_Store
