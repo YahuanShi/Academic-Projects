@@ -1,7 +1,2 @@
-# .gitignore
-*
-!README.md
-!Project Implementation Guide.md
-!.gitignore
-echo "Project Implementation Guide_ZH.md" >> .gitignore
-echo "README_ZH.md" >> .gitignore
+README_ZH.md
+Project Implementation Guide_ZH.md
