@@ -3,3 +3,5 @@
 !README.md
 !Project Implementation Guide.md
 !.gitignore
+echo "Project Implementation Guide_ZH.md" >> .gitignore
+echo "README_ZH.md" >> .gitignore
