@@ -3,16 +3,18 @@ import matplotlib.pyplot as plt
 
 def simulate_spring_mass(x_init, v_init, x_eq, k, m, b, t_max):
     """
-    离散方程：
+    Discrete-time equations:
         v_{t+1} = v_t - (b/m)*v_t - (k/m)*(x_t - x_eq)
         x_{t+1} = x_t + v_{t+1}
-    参数：
-        x_init, v_init : 初始位置与速度
-        x_eq           : 弹簧平衡位置
-        k, m, b        : 弹簧常数、质量、阻尼系数
-        t_max          : 模拟的最大时间步数
-    返回：
-        ts, xs, vs ：时间、位置、速度的数组
+    
+    Parameters:
+        x_init, v_init : Initial position and velocity
+        x_eq           : Equilibrium position of the spring
+        k, m, b        : Spring constant, mass, damping coefficient
+        t_max          : Maximum number of time steps for simulation
+    
+    Returns:
+        ts, xs, vs : Arrays of time, position, and velocity
     """
     xs = [x_init]
     vs = [v_init]
@@ -28,6 +30,9 @@ def simulate_spring_mass(x_init, v_init, x_eq, k, m, b, t_max):
     return np.array(ts), np.array(xs), np.array(vs)
 
 def plot_trajectory(ts, xs, vs, title, filename):
+    """
+    Plot the position and velocity trajectories over time.
+    """
     plt.figure()
     plt.plot(ts, xs, label="Position")
     plt.plot(ts, vs, label="Velocity")
@@ -41,22 +46,23 @@ def plot_trajectory(ts, xs, vs, title, filename):
     plt.close()
     print(f"Saved: {filename}")
 
-# 参数设置
+# Parameters
 K = 7.0
 M = 30.0
 X0 = 161.0
 T_MAX = 500
 
-# 无阻尼系统
+# Undamped system
 ts, xs, vs = simulate_spring_mass(
     x_init=200.0, v_init=0.0,
     x_eq=X0, k=K, m=M, b=0.0, t_max=T_MAX
 )
 plot_trajectory(ts, xs, vs, "Spring-Mass System (No Damper)", "mass.png")
 
-# 带阻尼系统（b=1）
+# Damped system (b=1)
 ts_d, xs_d, vs_d = simulate_spring_mass(
     x_init=200.0, v_init=0.0,
     x_eq=X0, k=K, m=M, b=1.0, t_max=T_MAX
 )
 plot_trajectory(ts_d, xs_d, vs_d, "Spring-Mass-Damper System (b=1)", "mass_damper.png")
+
