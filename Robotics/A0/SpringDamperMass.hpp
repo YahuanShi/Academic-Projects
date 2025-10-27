@@ -16,7 +16,8 @@ public:
                    double _damping_coeff);
 
   // TODO define your methods here
-
+  virtual int step() override;
+  
 private:
   /**
    * Damping coefficient for damper

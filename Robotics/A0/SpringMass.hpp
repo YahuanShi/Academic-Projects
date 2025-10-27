@@ -4,7 +4,7 @@
 #define SpringMass__H__
 
 #include <vector>
-
+using namespace std;
 /**
  * A two-dimensional array structure
  * 
@@ -15,6 +15,8 @@ struct Vec2d {
   double y;
 
   // TODO define members, methods, constructors etc.
+  Vec2d() : x(0), y(0) {}
+  Vec2d(double _x, double _y) : x(_x), y(_y) {}
 };
 
 /**
@@ -72,7 +74,14 @@ protected:
   static const double MASS;
 
   // TODO define your methods and variables here
+  double m_pos_init;
+  double m_vel_init;
+  double m_pos_eqm;
+  double m_vel_eqm;
 
+  Vec2d m_state;
+  vector<Vec2d> state_list;
+  int current_time;  
 };
 
 #endif // SpringMass__H__
