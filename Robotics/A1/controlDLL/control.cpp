@@ -44,7 +44,26 @@ void PreprocessControl(GlobalVariables& gv)
     PrVector3 g123 = PrVector3(0,0,0);
 
     // Compute g123 here!
+    const Float& r1 = R2;
+    const Float r2 = 0.189738;
+    const Float& r3 = R6;
+    const Float& l1 = L2;
+    const Float& l2 = L3;
+    const Float& l3 = L6;
+    const Float& m1 = M2;
+    const Float& m2 = M3 + M4 + M5;
+    const Float& m3 = M6;
+    const Float g = -9.81;
 
+
+    const Float c1 = cos(q1);
+    const Float s12 = sin(q1 + q2);
+    const Float s123 = sin(q1 + q2 + q3);
+
+    g123[0] = -g * ( r1*c1*m1 + (l1*c1+r2*s12)*m2 + (l1*c1+l2*s12+r3*s123)*m3 );
+    g123[1] = -g * (                    r2*s12*m2 +       (l2*s12+r3*s123)*m3 );
+    g123[2] = -g * (                                               r3*s123*m3 );
+    
     // maps the torques to the right joint indices depending on the current mode:
     if (gv.dof == 3) {
       gv.G[0] = g123[0];
