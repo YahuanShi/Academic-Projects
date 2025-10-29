@@ -244,12 +244,12 @@ void jmoveControl(GlobalVariables& gv)
 
 void njgotoControl(GlobalVariables& gv) 
 {
-  gv.tau = gv.kp * (gv.qd - gv.q) - gv.G; //PD-controller with gravity compensation
+  gv.tau = gv.kp * (gv.qd - gv.q) - gv.G; //P-controller with gravity compensation
 }
 
 void jgotoControl(GlobalVariables& gv) 
 {
-  gv.tau = gv.kp * (gv.qd - gv.q) - gv.kv * gv.dq - gv.G; //PD-controller with gravity compensation
+  gv.tau = gv.kp * (gv.qd - gv.q) + gv.G - gv.kv * gv.dq; //PD-controller with gravity compensation
 }
 
 void njtrackControl(GlobalVariables& gv) 
