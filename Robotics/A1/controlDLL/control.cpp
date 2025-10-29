@@ -59,23 +59,9 @@ void PreprocessControl(GlobalVariables& gv)
     float s12 = sin(q1 + q2);
     float s123 = sin(q1 + q2 + q3);
 
-    //first row members
-    float t11 = (r1 * m1 * gravity * c1);
-    float t12 = g * m2 * (l1 * c1 + r2 * c12);
-    float t13 = g * m3 * (l1 * c1 + l2 * c12 + r3 * c123);
-    g123[0] = t11 + t12 + t13;
-
-    //second row members
-    float t21 = 0;
-    float t22 = g * m2 * r2 * c12;
-    float t23 = g * m3 * (l2 * c12 + r3 * c123);
-    g123[1] = t21 + t22 + t23; 
-
-    //third row members
-    float t31 = 0;
-    float t32 = 0;
-    float t33 = g * m3 * r3 * c123;
-    g123[2] = t31 + t32 + t33;
+    g123[0] = g * (m1 * r1 * c1 + m2 * (l1 * c1 + r2 * s12) + m3 * (l1 * c1 + l2 * s12 + r3 * s123));
+    g123[1] = g * (m2 * r2 * s12 + m3 * (l2 * s12 + r3 * s123));
+    g123[2] = g * (m3 * r3 * s123);
 
     // maps the torques to the right joint indices depending on the current mode:
     if (gv.dof == 3) {
@@ -225,7 +211,7 @@ void noControl(GlobalVariables& gv)
 
 void floatControl(GlobalVariables& gv)
 {
-  // gv.tau = ?
+  gv.tau = gv.G;
   // this only works on the real robot unless the function is changed to use cout
   // the handed in solution must not contain any printouts
   // PrintDebug(gv);
@@ -248,7 +234,7 @@ void jholdControl(GlobalVariables& gv)
 
 void njmoveControl(GlobalVariables& gv)
 {
-  floatControl(gv);  // Remove this line when you implement this controller
+  gv.tau = gv.kp * (gv.qd - gv.q);
 }
 
 void jmoveControl(GlobalVariables& gv)
