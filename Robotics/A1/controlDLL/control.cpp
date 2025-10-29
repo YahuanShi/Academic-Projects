@@ -44,26 +44,39 @@ void PreprocessControl(GlobalVariables& gv)
     PrVector3 g123 = PrVector3(0,0,0);
 
     // Compute g123 here!
-    const Float& r1 = R2;
-    const Float r2 = 0.189738;
-    const Float& r3 = R6;
-    const Float& l1 = L2;
-    const Float& l2 = L3;
-    const Float& l3 = L6;
-    const Float& m1 = M2;
-    const Float& m2 = M3 + M4 + M5;
-    const Float& m3 = M6;
-    const Float g = -9.81;
+    float r1 = R2;
+    float r2 = 0.189738;
+    float r3 = R6;
+    float l1 = L2;
+    float l2 = L3;
+    float l3 = L6;
+    float m1 = M2;
+    float m2 = M3 + M4 + M5;
+    float m3 = M6;
+    float g = -9.81;
 
+    float c1 = cos(q1);
+    float s12 = sin(q1 + q2);
+    float s123 = sin(q1 + q2 + q3);
 
-    const Float c1 = cos(q1);
-    const Float s12 = sin(q1 + q2);
-    const Float s123 = sin(q1 + q2 + q3);
+    //first row members
+    float t11 = (r1 * m1 * gravity * c1);
+    float t12 = g * m2 * (l1 * c1 + r2 * c12);
+    float t13 = g * m3 * (l1 * c1 + l2 * c12 + r3 * c123);
+    g123[0] = t11 + t12 + t13;
 
-    g123[0] = -g * ( r1*c1*m1 + (l1*c1+r2*s12)*m2 + (l1*c1+l2*s12+r3*s123)*m3 );
-    g123[1] = -g * (                    r2*s12*m2 +       (l2*s12+r3*s123)*m3 );
-    g123[2] = -g * (                                               r3*s123*m3 );
-    
+    //second row members
+    float t21 = 0;
+    float t22 = g * m2 * r2 * c12;
+    float t23 = g * m3 * (l2 * c12 + r3 * c123);
+    g123[1] = t21 + t22 + t23; 
+
+    //third row members
+    float t31 = 0;
+    float t32 = 0;
+    float t33 = g * m3 * r3 * c123;
+    g123[2] = t31 + t32 + t33;
+
     // maps the torques to the right joint indices depending on the current mode:
     if (gv.dof == 3) {
       gv.G[0] = g123[0];
