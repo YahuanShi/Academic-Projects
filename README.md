@@ -1,8 +1,8 @@
 # Academic Projects
 
-This repository contains a curated collection of academic projects and assignments from my coursework at TU Berlin and Politecnico di Milano. The projects cover a range of topics including robotics, machine learning, deep learning, finite element methods, control systems, and data analytics.
+This repository contains a curated collection of academic projects and assignments from my coursework at TU Berlin and Politecnico di Milano. The projects cover a range of topics including robotics, machine learning, deep learning, computer vision, control systems, data analytics, and computational mechanics.
 
-## 📘 Completed Courses
+## Completed Courses
 
 - [`Machine-Learning`](./Machine-Learning): Core machine learning assignments and mini-projects.
 - [`Deep-Learning`](./Deep-Learning): Projects exploring CNNs, RNNs, and optimization techniques.
@@ -12,13 +12,14 @@ This repository contains a curated collection of academic projects and assignmen
 - [`Industrial-Robotics`](./Industrial-Robotics): Trajectory control, forward/inverse kinematics, and ROS simulations.
 - [`Motion-Planning`](./Motion-Planning): Path planning algorithms including RRT and A*.
 - [`Data-Analytics-with-Python`](./Data-Analytics-with-Python): Data wrangling, visualization, and analysis using Python and pandas.
-
-## 🚧 Ongoing Courses
-
 - [`Automatic-Image-Analysis`](./Automatic-Image-Analysis): Image segmentation, filtering, and feature extraction using classical and deep learning approaches.
-- [`Robot-Learning`](./Robot-Learning): Reinforcement learning and imitation learning for robotic tasks.
+
+## Ongoing Courses
+
 - [`Automation-Project`](./Automation-Project): Team-based project focused on real-world automation problem-solving using sensor integration and control logic.
+- ['DDigital-Image_Processing'](./Digital-Image-Processing/)
+- ['Robotics'](./Robotics/)
 
 ---
 
-Each folder contains code, reports, and related materials. This repository serves as a portfolio to demonstrate my academic experience and practical skills for internship applications.
+Each folder contains code, reports, and related materials. This repository serves as a portfolio to demonstrate my academic experience.
