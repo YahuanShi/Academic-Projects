@@ -24,9 +24,8 @@ Upon successful completion of the course, students will be able to:
 
 ## Exercises & Assignments
 
-Homework assignments are provided during the exercises and must be completed within two weeks. The exercises cover both theoretical questions and programming tasks.
+The exercises cover both theoretical questions and programming tasks.
 
-- Exercises are typically completed in small groups (3-4 students).
 - The practical implementation focuses on algorithms and frameworks introduced in lectures.
 
 ---
