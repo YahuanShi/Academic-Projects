@@ -17,7 +17,7 @@ This repository contains a curated collection of academic projects and assignmen
 ## Ongoing Courses
 
 - [`Automation-Project`](./Automation-Project): Team-based project focused on real-world automation problem-solving using sensor integration and control logic.
-- ['DDigital-Image_Processing'](./Digital-Image-Processing/)
+- ['Digital-Image_Processing'](./Digital-Image-Processing/)
 - ['Robotics'](./Robotics/)
 
 ---
