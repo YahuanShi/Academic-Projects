@@ -4,17 +4,17 @@ This repository contains a curated collection of academic projects and assignmen
 
 ## Completed Courses
 
-- [`Machine-Learning`](./Machine-Learning): Core machine learning assignments and mini-projects.
-- [`Deep-Learning`](./Deep-Learning): Projects exploring CNNs, RNNs, and optimization techniques.
-- [`ANN-and-Deep-Learning`](./ANN-and-Deep-Learning): Neural network models built using PyTorch and TensorFlow.
-- [`Automatic-Image-Analysis`](./Automatic-Image-Analysis): Image segmentation, filtering, and feature extraction using classical and deep learning approaches.
-- [`Motion-Planning`](./Motion-Planning): Path planning algorithms including RRT and A*.
-- [`ML-in-Computational-Mechanics`](./ML-in-Computational-Mechanics): Application of ML in physical simulation and structural mechanics.
-- [`Data-Analytics-with-Python`](./Data-Analytics-with-Python): Data wrangling, visualization, and analysis using Python and pandas.
+- [`Machine-Learning`](./Machine-Learning)
+- [`Deep-Learning`](./Deep-Learning)
+- [`ANN-and-Deep-Learning`](./ANN-and-Deep-Learning)
+- [`Automatic-Image-Analysis`](./Automatic-Image-Analysis)
+- [`Motion-Planning`](./Motion-Planning)
+- [`ML-in-Computational-Mechanics`](./ML-in-Computational-Mechanics)
+- [`Data-Analytics-with-Python`](./Data-Analytics-with-Python)
 
 ## Ongoing Courses
 
-- [`Automation-Project`](./Automation-Project): Team-based project focused on real-world automation problem-solving using sensor integration and control logic.
+- [`Automation-Project`](./Automation-Project)
 - ['Digital-Image_Processing'](./Digital-Image-Processing/)
 - ['Robotics'](./Robotics/)
 - ['State Estimation for Robotics'](./State-Estimation-for-Robotics/)
