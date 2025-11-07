@@ -50,11 +50,74 @@ ZONE_LAYOUT: Dict[str, Dict[str, Tuple[int, ...]]] = {
     "Handover": {"rect": (100, 560, 280, 640), "label": "Handover"},
     "Home": {"rect": (480, 420, 520, 460), "label": "Home"},
 }
+# ==== NEW: world→image 通过 Homography 重新定位矩形中心，保持宽高不变 ====
 
-# Compute rectangle centres and store them for later use
+# 1) 单应性矩阵（世界→图像）。若你的 H 实际上是图像→世界，请改为 H = np.linalg.inv(H)
+H = np.array([
+    [-944.336237, -87.4102614,  -4.95230579],
+    [ -62.4513781, 874.191558, 134.016380  ],
+    [  -0.00962922264, -0.142556057, 1.0]
+], dtype=float)
+
+# 2) 各区域在世界/机器人平面的中心 (X,Y) —— 使用我们之前算过的中心（单位需与标定一致）
+CENTERS_WORLD: Dict[str, Tuple[float, float]] = {
+    "PCB1":    (0.714149, -0.139535),
+    "PCB2":    (0.435914, -0.144026),
+    "PCB3":    (0.174782, -0.337729),
+    "Battery": (0.653287,  0.041550),
+    "Motor":   (0.264111,  0.115139),  # rb_arm_on_m
+    "MotorTray": (0.264111, 0.115139), # 复用 Motor
+    # 其余未提供世界中心的区域保持原位（Assembly/Handover/Home 等）
+}
+
+def _project_point_homography(H: np.ndarray, X: float, Y: float) -> Tuple[float, float]:
+    """(X,Y,1) → (u,v,1) 归一化"""
+    p = np.array([X, Y, 1.0], dtype=float)
+    q = H @ p
+    z = q[2]
+    if abs(z) < 1e-9:
+        raise ValueError("Homography normalization failed (z≈0)")
+    return float(q[0] / z), float(q[1] / z)
+
+def _recenter_rect_keep_size(rect: Tuple[int,int,int,int], cx: float, cy: float) -> Tuple[int,int,int,int]:
+    """以新中心 (cx,cy) 平移矩形，保持宽高不变；返回四整型像素"""
+    x1, y1, x2, y2 = rect
+    w, h = (x2 - x1), (y2 - y1)
+    nx1 = int(round(cx - w/2))
+    ny1 = int(round(cy - h/2))
+    nx2 = int(round(cx + w/2))
+    ny2 = int(round(cy + h/2))
+    return (nx1, ny1, nx2, ny2)
+
+def relocate_zones_by_H(
+    zone_layout: Dict[str, Dict[str, Tuple[int, ...]]],
+    H: np.ndarray,
+    centers_world: Dict[str, Tuple[float, float]],
+) -> Dict[str, Dict[str, Tuple[int, ...]]]:
+    """对有世界中心定义的区域，按 H 投影更新中心，宽高不变；其余区域保持不变。"""
+    out: Dict[str, Dict[str, Tuple[int, ...]]] = {}
+    for name, cfg in zone_layout.items():
+        rect = cfg["rect"]
+        label = cfg.get("label", name)
+        if name in centers_world:
+            X, Y = centers_world[name]
+            u, v = _project_point_homography(H, X, Y)
+            new_rect = _recenter_rect_keep_size(rect, u, v)
+        else:
+            new_rect = rect
+        out[name] = {"rect": new_rect, "label": label}
+    return out
+
+# === 实际应用：用 H 重新定位有定义世界中心的区域 ===
+ZONE_LAYOUT = relocate_zones_by_H(ZONE_LAYOUT, H, CENTERS_WORLD)
+
+# === 重新计算各区域中心（像素）供后续使用 ===
 for zone_cfg in ZONE_LAYOUT.values():
     x1, y1, x2, y2 = zone_cfg["rect"]
     zone_cfg["center"] = ((x1 + x2) // 2, (y1 + y2) // 2)
+
+
+
 
 # Target circle inside the handover area (center x, center y, radius)
 TARGET_CIRCLE = (190, 620, 30)
@@ -190,7 +253,7 @@ class SchedulerVisualizer:
         cv2.resizeWindow("Subie Workbench Overview", CANVAS_WIDTH, CANVAS_HEIGHT)
 
 
-        def _status_callback(self, msg: SmachContainerStatus) -> None:
+    def _status_callback(self, msg: SmachContainerStatus) -> None:
         if not msg.active_states:
             return
         state_name = msg.active_states[-1]
@@ -200,6 +263,7 @@ class SchedulerVisualizer:
                 self.state_history.append(state_name)
             self.current_state = state_name
             self.next_states = STATE_TRANSITIONS.get(state_name, [])
+
 
     def _planned_traj_cb(self, msg: RobotTrajectory) -> None:
         """Receive planned trajectory, run FK to get TCP poses, project to canvas (no scaling), cache polyline."""
