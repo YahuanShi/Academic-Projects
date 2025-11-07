@@ -15,7 +15,6 @@ import json
 import csv
 import threading
 import random
-import cv2
 #from schledluer_2.msg import robot_msgs # type: ignore
 from tf.transformations import quaternion_from_euler  # type: ignore
 from geometry_msgs.msg import Pose, PoseStamped , PointStamped # type: ignore
@@ -29,6 +28,9 @@ from trajectory_msgs.msg import JointTrajectoryPoint # type: ignore
 from std_msgs.msg import String # type: ignore
 from robotiq_2f_gripper_control.msg import _Robotiq2FGripper_robot_input  as inputMsg # type: ignore
 from robotiq_2f_gripper_control.msg import Robotiq2FGripper_robot_output, Robotiq2FGripper_robot_input # type: ignore
+
+from moveit_msgs.msg import RobotTrajectory
+
 
 SHARED_STATE_PATH = os.path.join(os.path.expanduser("~"), "Desktop", "Subie", "shared_state.json")
  
@@ -82,8 +84,8 @@ rb_arm_transition_over_gb2_3 =  np.array([0.5486854170473805, -0.270573936094476
 rb_arm_transition_over_gb3_1 =  np.array([0.6402808547359244, -0.26790083190492066, 0.38354439061807685 ,0.019159378644141387, 0.999622466840548, -0.005839393784188026, 0.018808069486830555])
 rb_arm_transition_over_gb3_2 =  np.array([0.6402808547359244, -0.46790083190492066, 0.38354439061807685 ,0.019159378644141387, 0.999622466840548, -0.005839393784188026, 0.018808069486830555])
 rb_arm_transition_over_gb3_3 =  np.array([0.6462095361762108, -0.42958043631187304, 0.32294284763188763,0.22995546405105458, -0.9724188361116615, 0.024114318656486708, 0.030669062001299596])
-# 0,
-# rb_arm_transition_over_gb4_3 =  np.array([])
+0,
+rb_arm_transition_over_gb4_3 =  np.array([])
  
 rb_arm_on_pcb1  =  [np.array([0.6316488317010515, -0.13953502575569454, 0.16890158973568933 ,-0.7289965096816865, -0.6845173343498824, 0.00032839232615476167, 0]),
                     np.array([0.6866488317010515, -0.13953502575569454, 0.16890158973568933  ,-0.7289965096816865, -0.6845173343498824, 0.00032839232615476167, 0]),
@@ -113,30 +115,6 @@ rb_arm_on_pcb2_all = list(rb_arm_on_pcb2)
 rb_arm_on_pcb3_all = list(rb_arm_on_pcb3)
 rb_arm_on_battery_all = list(rb_arm_on_battery)
 
-
-# === 投影指示区：常量定义 ===
-WIDTH, HEIGHT = 1024, 768
-CENTER = (WIDTH // 2, HEIGHT // 2)
-
-# 工作台坐标系中的矩形区域 (cx, cy, w, h, label)
-RECTS = [
-    (3071.6, 1514.1, 4400,  600,  "PCB1"),
-    (-3126.8, 1463.4, 7100, 1200, "PCB2"),
-    (-6619.7, -1977.6, 2900, 3600, "PCB3"),
-    (952.28,  4894.7, 3200, 4200, "Motor"),
-    (-4815.2, 4892.9, 5600, 4200, "Battery"),
-]
-
-# 整个工作台最大边界（以 mm 计），用于把 mm -> 画布像素 的归一化缩放
-RECT_W, RECT_H = 18200, 14000
-SCALE = min(WIDTH / RECT_W, HEIGHT / RECT_H)
-
-# 单应矩阵（投影/畸变校正，可按需替换为实际标定）
-H = np.array([
-    [7.35135136e+02, 0.,               2.03448646e+02],
-    [0.,              1.02857148e+03,  1.71085702e+02],
-    [0.,              0.,              1.00000000e+00]
-], dtype=np.float32)
 
 def read_durchlauf(default: int = 1) -> int:
     try:
@@ -230,7 +208,9 @@ class RobotControl:
             self.robot = moveit_commander.RobotCommander()
  
             rospy.sleep(2)  
- 
+            
+            self.plan_pub = rospy.Publisher('/planned_trajectory', RobotTrajectory, queue_size=1)
+
  
  
             # Tischfläche, Wände ung Grundplatten in MoveIt zur Kollisionserkennung hinzufügen
@@ -308,6 +288,34 @@ class RobotControl:
                 print(f"user: {user}")
  
             break
+        
+        
+        
+    def _extract_robottrajectory(self, plan_result):
+        """兼容 MoveIt Python 不同返回格式，提取 RobotTrajectory。"""
+        if isinstance(plan_result, RobotTrajectory):
+            return plan_result
+        if isinstance(plan_result, tuple):
+            # compute_cartesian_path: (plan, fraction)
+            if len(plan_result) == 2 and isinstance(plan_result[0], RobotTrajectory):
+                return plan_result[0]
+            # plan(): (success_flag, plan, planning_time, error_code) 等
+            for it in plan_result:
+                if isinstance(it, RobotTrajectory):
+                    return it
+        return None
+
+    def _publish_plan_if_any(self, plan_result):
+        """若提取到轨迹则发布到 /planned_trajectory（仅规划完成时发布，一次即可）"""
+        try:
+            traj = self._extract_robottrajectory(plan_result)
+            if traj and traj.joint_trajectory.points:
+                self.plan_pub.publish(traj)
+                rospy.loginfo("已发布规划轨迹到 /planned_trajectory（点数：%d）",
+                            len(traj.joint_trajectory.points))
+        except Exception as e:
+            rospy.logwarn("发布规划轨迹失败：%s", e)
+
  
     def convert_to_pose(self, koords):
         #Konvertiert ein 1x7-Array in eine Pose
@@ -344,7 +352,14 @@ class RobotControl:
         self.move_group.set_max_velocity_scaling_factor(0.9)
         self.move_group.set_pose_target(target_pose)
         rospy.loginfo("Bewege Roboter zu: x={}, y={}, z={}".format(target_pose.position.x, target_pose.position.y, target_pose.position.z))
-        # rospy.loginfo("0.2662104568594572, -0.35661957908057046, 0.24265798894634866 | Orientation: 0.0050765060764118896, -0.8027125907596652, 0.5948306511336113, 0.042464363811632704")
+        plan_result = self.move_group.plan()
+
+        # 发布规划结果（供可视化节点订阅使用）
+        self._publish_plan_if_any(plan_result)
+
+        # 取出 RobotTrajectory
+        traj = self._extract_robottrajectory(plan_result)
+        
         success = self.move_group.go(True)
         # success = self.move_group.go(wait=True)
         if success:
@@ -370,6 +385,9 @@ class RobotControl:
         (plan, fraction) = self.move_group.compute_cartesian_path(waypoints, 0.05) 
         if fraction < 1.0:
             return False
+        
+        self._publish_plan_if_any((plan, fraction))  # ← 新增
+
         rospy.loginfo("Bewege Roboter in einer Linie zu: x={}, y={}, z={}".format(target_pose.position.x, target_pose.position.y, target_pose.position.z))
  
         success = self.move_group.execute(plan, wait=True)
@@ -397,6 +415,10 @@ class RobotControl:
         (plan, fraction) = self.move_group.compute_cartesian_path(waypoints, 0.05) 
         if fraction < 1.0:
             return False
+        
+        self._publish_plan_if_any((plan, fraction))  # ← 新增
+
+        
         success = self.move_group.execute(plan, wait=True)
         if success:
             rospy.loginfo("Bewegung erfolgreich!")
@@ -420,7 +442,11 @@ class RobotControl:
         self.move_group.set_max_velocity_scaling_factor(0.9)
         for i, waypoint in enumerate(waypoints):
             self.move_group.set_pose_target(waypoint)
-            plan = self.move_group.plan()  
+            plan = self.move_group.plan() 
+            
+            self._publish_plan_if_any(plan)  # ← 新增
+            traj = self._extract_robottrajectory(plan) 
+            
             if plan[0]:  
                 rospy.loginfo(f"Führe Waypoint {i+1} aus...")
                 self.move_group.execute(plan[1], wait=True)
@@ -441,6 +467,13 @@ class RobotControl:
             return True
  
         self.move_group.set_max_velocity_scaling_factor(speed / 100.0)
+        
+        self.move_group.set_joint_value_target(joint_goal) # ← 新增
+        plan_result = self.move_group.plan()
+        plan_result = self.move_group.plan()
+        self._publish_plan_if_any(plan_result) 
+        traj = self._extract_robottrajectory(plan_result)# ← 新增
+        
         success = self.move_group.go(joint_goal, wait=True)
         if success:
             rospy.loginfo("Bewegung erfolgreich!")
@@ -457,12 +490,12 @@ class RobotControl:
         self.move_group.stop()
         rospy.loginfo("Roboter gestoppt!")
  
-    # def reset_robot(self):
-    #     ###wird nicht benutzt
-    #     #Setzt den Roboter auf die Home-Position zurück
-    #     self.move_group.set_named_target("home")
-    #     self.move_group.go(wait=True)
-    #     rospy.loginfo("Roboter auf 'Home' Position zurückgesetzt!")
+    def reset_robot(self):
+        ###wird nicht benutzt
+        #Setzt den Roboter auf die Home-Position zurück
+        self.move_group.set_named_target("home")
+        self.move_group.go(wait=True)
+        rospy.loginfo("Roboter auf 'Home' Position zurückgesetzt!")
  
     def handover_to_hum(self, speed):
         rospy.loginfo("Starte Übergabe an den Menschen...")
@@ -903,101 +936,7 @@ class GripperController:
         rospy.loginfo(f"Gripper-Befehl '{action_type}' gesendet – warte auf Abschluss...")
         return self.wait_for_gripper_stop()
         #return True
-
-
-class ProjectionOverlay:
-    """
-    在 1024x768 画布上绘制工作台的指示矩形。
-    - 把工作台 mm 坐标 -> 画布像素：先按 SCALE 以 CENTER 为中心进行归一化，再可选通过 H 做校正。
-    - 支持高亮某个 label（红色加粗），其余为绿色。
-    - 独立线程循环绘制，直到 rospy.shutdown。
-    """
-    def __init__(self, window_name: str = "workdesk_projection"):
-        self.window_name = window_name
-        self.highlight_label = None
-        self._stop = threading.Event()
-
-        # 预创建窗口
-        cv2.namedWindow(self.window_name, cv2.WINDOW_NORMAL)
-        cv2.resizeWindow(self.window_name, WIDTH, HEIGHT)
-        # 如需投影仪全屏，可解开下面这行：
-        # cv2.setWindowProperty(self.window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-
-    def stop(self):
-        self._stop.set()
-
-    def set_highlight(self, label: str | None):
-        self.highlight_label = label
-
-    def world_to_canvas(self, x_mm: float, y_mm: float):
-        """
-        把工作台坐标 (mm) 映射到画布像素坐标。
-        先用线性缩放把 (0,0) 放到 CENTER，+X 向右，+Y 向上（因此 y 取反），
-        再通过单应矩阵 H 做一次校正（可理解为投影仪几何校正）。
-        """
-        # 线性归一化到以 CENTER 为中心的画布坐标
-        px = CENTER[0] + x_mm * SCALE
-        py = CENTER[1] - y_mm * SCALE
-
-        # 应用单应变换（像素到像素的轻微校正）
-        vec = np.array([px, py, 1.0], dtype=np.float32)
-        out = H @ vec
-        if out[2] != 0:
-            px_corr = float(out[0] / out[2])
-            py_corr = float(out[1] / out[2])
-        else:
-            px_corr, py_corr = float(out[0]), float(out[1])
-
-        # 裁剪到画布范围
-        px_corr = max(0, min(WIDTH - 1, int(round(px_corr))))
-        py_corr = max(0, min(HEIGHT - 1, int(round(py_corr))))
-        return (px_corr, py_corr)
-
-    def rect_corners_world(self, cx, cy, w, h):
-        """以 (cx,cy) 为中心的矩形四角（顺时针）"""
-        hw, hh = w / 2.0, h / 2.0
-        return [
-            (cx - hw, cy - hh),
-            (cx + hw, cy - hh),
-            (cx + hw, cy + hh),
-            (cx - hw, cy + hh),
-        ]
-
-    def draw_once(self):
-        canvas = np.zeros((HEIGHT, WIDTH, 3), dtype=np.uint8)
-
-        for (cx, cy, w, h, label) in RECTS:
-            pts_world = self.rect_corners_world(cx, cy, w, h)
-            pts_canvas = [self.world_to_canvas(x, y) for (x, y) in pts_world]
-            pts_np = np.array(pts_canvas, dtype=np.int32)
-
-            is_highlight = (self.highlight_label == label)
-            color = (0, 0, 255) if is_highlight else (0, 255, 0)  # BGR：红 or 绿
-            thickness = 4 if is_highlight else 2
-
-            cv2.polylines(canvas, [pts_np], isClosed=True, color=color, thickness=thickness)
-
-            # 画标签
-            tl = pts_np[0]
-            cv2.putText(canvas, label, (tl[0] + 6, tl[1] - 8),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2, cv2.LINE_AA)
-
-        cv2.imshow(self.window_name, canvas)
-        cv2.waitKey(1)
-
-    def loop(self):
-        rate = rospy.Rate(30)  # 30 FPS
-        while not rospy.is_shutdown() and not self._stop.is_set():
-            self.draw_once()
-            rate.sleep()
-
-        # 收尾
-        try:
-            cv2.destroyWindow(self.window_name)
-        except Exception:
-            pass
-
-
+ 
 #======Get Hum Data======
 class get_Hum_mertics:
     #innitiere tracking des Menschen
@@ -1146,7 +1085,7 @@ class get_Hum_mertics:
             self.inside_norm_upper = False
             self.uperarmlenght = upperarmlenghtdin
  
-        if(self.forearmlenght <= forearmlenghdin_max) and (self.forearmlenght >= forearmlenghdin_min):
+        if(self.forearmlenght <= forearmlenghdin_max) and (self.forearmlenght <= forearmlenghdin_min):
             self.inside_norm_fore = True
         else:
             rospy.logwarn(f"Unterarmmaße sind außerhalb 5. bis 95 Perzentil")
@@ -1186,20 +1125,6 @@ class Start(smach.State):
         smach.State.__init__(self, outcomes=['MPickUp','MHoldHD','MPositioning','PCB1PickUpAndPositioning','PCB2PickUpAndPositioning','BatteryPickUpAndPositioning','succeeded_end','test'])
     def execute(self, userdata):
         rospy.loginfo(f"Führe state: {self.__class__.__name__} aus.")
-        
-        def highlight_for_choice(choice: str):
-            # 联动：1/"" -> Motor；4 -> PCB1；5 -> PCB2；6 -> Battery
-            if choice == "1" or choice == "":
-                projection_overlay.set_highlight("Motor")
-            elif choice == "4":
-                projection_overlay.set_highlight("PCB1")
-            elif choice == "5":
-                projection_overlay.set_highlight("PCB2")
-            elif choice == "6":
-                projection_overlay.set_highlight("Battery")
-            else:
-                projection_overlay.set_highlight(None)
-                
         #Hauptmenuü
         if( user ==  "test" ):
  
@@ -1215,8 +1140,6 @@ class Start(smach.State):
  
             while True:
                     start = input("Bitte wähle einen State aus (1–8): ")
-                    highlight_for_choice(start)
-                    
                     if start == "1" or start == "":
                         print("\nDu hast MPickUp gewählt.")
                         return 'MPickUp'
@@ -1256,7 +1179,6 @@ class Start(smach.State):
  
             while True:
                     start = input("Bitte wähle einen State aus (1–8): ")
-                    highlight_for_choice(start)
  
                     if start == "1" or start == "":
                         print("\nDu hast MPickUp gewählt.")
@@ -1717,9 +1639,6 @@ if __name__ == "__main__":
         rospy.logwarn(f"shared_state.json fehlt am erwarteten Pfad {SHARED_STATE_PATH}")
     wait_for_moveit()
     robot_control = RobotControl("manipulator")
-    projection_overlay = ProjectionOverlay()
-    overlay_thread = threading.Thread(target=projection_overlay.loop, daemon=True)
-    overlay_thread.start()
     moveit_commander.roscpp_initialize(sys.argv)
     robot_control.gripper_controller.send_gripper_command('reset')
     robot_control.gripper_controller.send_gripper_command('activate')
