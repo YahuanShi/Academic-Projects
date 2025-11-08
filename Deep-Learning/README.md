@@ -1,12 +1,12 @@
 # Deep Learning
 
-## 🎯 Course Description
+## Course Description
 
 This course covers both foundational and advanced deep learning concepts. It includes mathematical formulations, optimization, regularization, and state-of-the-art neural architectures. Students gain practical skills using modern deep learning frameworks (e.g. PyTorch), and explore applications such as generative modeling, graph learning, and reinforcement learning.
 
 ---
 
-## 📘 Learning Outcomes
+## Learning Outcomes
 
 Upon completing this course, I was able to:
 
@@ -17,7 +17,7 @@ Upon completing this course, I was able to:
 
 ---
 
-## 🧠 Lecture Topics
+## Lecture Topics
 
 | Lecture | Topic |
 |---------|--------------------------------------------------------------|
@@ -43,22 +43,3 @@ Upon completing this course, I was able to:
 | 20 | [Reinforcement Learning](./20-reinforcement-learning) |
 
 ---
-
-## 🛠️ Tools & Libraries
-
-- PyTorch
-- Matplotlib
-- NumPy
-- TensorBoard (optional)
-- scikit-learn (for comparison)
-
----
-
-## 📁 Assignments
-
-Each lecture includes code exercises and theoretical questions.  
-Relevant `.ipynb` notebooks and written reports are placed inside the lecture folders.
-
----
-
-> 📂 Browse each topic to find detailed implementations and explanations.
