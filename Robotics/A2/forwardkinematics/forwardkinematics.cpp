@@ -157,7 +157,7 @@ void ForwardKinematicsPuma2D::computeT1_2()
    T1_2[0][0] = sin(angles[1]);
    T1_2[0][1] = cos(angles[1]);
    T1_2[0][2] = 0.0;
-   T1_2[0][3] = 0.0;
+   T1_2[0][3] = l1;
 
    //row vector
    T1_2[1][0] = -cos(angles[1]);
@@ -193,7 +193,7 @@ void ForwardKinematicsPuma2D::computeT2_3()
    T2_3[0][0] = cos(angles[2]);
    T2_3[0][1] = -sin(angles[2]);
    T2_3[0][2] = 0.0;
-   T2_3[0][3] = 0.0;
+   T2_3[0][3] = l2;
 
    //row vector
    T2_3[1][0] = sin(angles[2]);
@@ -306,7 +306,7 @@ void ForwardKinematicsPuma2D::computeF()
 
    F[0] = l3 * sin(angles[0] + angles[1] + angles[2]) + l2 * sin(angles[0] + angles[1]) + l1 * cos(angles[0]); //x
    F[1] = -l3 * cos(angles[0] + angles[1] + angles[2]) - l2 * cos(angles[0] + angles[1]) + l1 * sin(angles[0]); //y
-   F[2] = angles[0] + angles[1] - M_PI_2 + angles[2]; //alpha
+   F[2] = angles[0] + angles[1] - M_PI_2 + angles[2];
 }
 
 
@@ -383,8 +383,8 @@ int main()
 {
  ForwardKinematicsPuma2D* fk = new ForwardKinematicsPuma2D();
  //fk->setJoints(0.0,0.0,0.0); //example, try out different values
- fk->setJoints(0.0,0.0,-M_PI_2)；
- fk->setJoints(0.0,M_PI_2,0.0)；
+fk->setJoints(0.0,0.0,-M_PI_2);
+fk->setJoints(0.0,M_PI_2,0.0);
  cout << "********************Testing Transforms**************"<<endl;
  print_HTransform(fk->T0_1);
  print_HTransform(fk->T1_2);
