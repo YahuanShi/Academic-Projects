@@ -382,9 +382,9 @@ You are free to change main() as you like
 int main()
 {
  ForwardKinematicsPuma2D* fk = new ForwardKinematicsPuma2D();
- //fk->setJoints(0.0,0.0,0.0); //example, try out different values
-fk->setJoints(0.0,0.0,-M_PI_2);
-fk->setJoints(0.0,M_PI_2,0.0);
+ fk->setJoints(0.0,0.0,0.0); //example, try out different values
+//fk->setJoints(0.0,0.0,-M_PI_2);
+//fk->setJoints(0.0,M_PI_2,0.0);
  cout << "********************Testing Transforms**************"<<endl;
  print_HTransform(fk->T0_1);
  print_HTransform(fk->T1_2);
