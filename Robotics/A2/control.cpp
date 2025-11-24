@@ -12,42 +12,39 @@
 using std::min;
 using std::max;
 
-struct CubicSpline {
-    double t0, tf;
-    PrVector a0, a1, a2, a3;
-};
-CubicSpline spline;
 
-PrVector F;  // operational-space control force
+struct CubicSpline {
+  double t0 , tf ;
+  PrVector a0 , a1 , a2 , a3 ;
+};
+
+CubicSpline spline;
+bool control_done = true;
 
 // *******************************************************************
 // DOF Mapping Helpers
 // *******************************************************************
 
-inline void extract3DOF(GlobalVariables& gv, PrVector& q, PrVector& dq)
+double computeTf(GlobalVariables& gv)
 {
-    q  = PrVector(3);
-    dq = PrVector(3);
+  std::vector<float> tf_vec;
+  double tf_rel;
+  PrVector delta_q = gv.qd - gv.q;
+  spline.t0 = gv.curTime;
+  spline.a0 = gv.q;
+  spline.a1 = PrVector(3);
+  // calc tf for every q and then take the max
+  for (int i = 0; i < 3; i++) {
+    float tf_1 = abs((2/(3*gv.dqmax[i])) * (gv.qd[i] - gv.q[i]));
+    float tf_2 = sqrt(abs((6/gv.ddqmax[i]) * (gv.qd[i] - gv.q[i])));
+    tf_vec.push_back(std::max(tf_1, tf_2));
+  }
+  tf_rel = *(std::max_element(tf_vec.begin(), tf_vec.end()));
+  spline.tf = tf_rel + spline.t0;
+  spline.a2 = (3/pow(tf_rel,2)) * delta_q;
+  spline.a3 = -(2/pow(tf_rel,3)) * delta_q;
 
-    if (gv.dof == 3) {
-        q = gv.q;
-        dq = gv.dq;
-    } else {
-        q[0]=gv.q[1]; q[1]=gv.q[2]; q[2]=gv.q[4];
-        dq[0]=gv.dq[1]; dq[1]=gv.dq[2]; dq[2]=gv.dq[4];
-    }
-}
-
-inline void writeTau3DOF(GlobalVariables& gv, const PrVector& tau3)
-{
-    if (gv.dof == 3) {
-        gv.tau = tau3;
-    } else {
-        gv.tau = PrVector(gv.dof);
-        gv.tau[1]=tau3[0];
-        gv.tau[2]=tau3[1];
-        gv.tau[4]=tau3[2];
-    }
+  return spline.tf;
 }
 
 void PrintDebug(GlobalVariables& gv);
@@ -102,21 +99,8 @@ void PreprocessControl(GlobalVariables& gv)
     g123[2] = g * (m3 * r3 * s123);
 
     // maps the torques to the right joint indices depending on the current mode:
-    if (gv.dof == 3) {
-      gv.G[0] = g123[0];
-      gv.G[1] = g123[1];
-      gv.G[2] = g123[2];
-    } else if (gv.dof == 6) {
-      gv.G[1] = g123[0];
-      gv.G[2] = g123[1];
-      gv.G[4] = g123[2];
-    }
-    // printing example, do not leave print inthe handed in solution 
-    // printVariable(g123, "g123");
-  } else {
-    gv.G = PrVector(gv.G.size());
-  }   
-}
+  
+}}
 
 void PostprocessControl(GlobalVariables& gv) 
 {
@@ -163,24 +147,9 @@ void initJgotoControl(GlobalVariables& gv)
   // Control Initialization Code Here
 }
 
-void initNjtrackControl(GlobalVariables& gv) // B1: Cubic Spline Initialization
+void initNjtrackControl(GlobalVariables& gv)
 {
-  PrVector q(3), dq(3), qd(3);
-    extract3DOF(gv, q, dq);
-
-    if (gv.dof == 3) qd = gv.qd;
-    else {
-        qd[0]=gv.qd[1]; qd[1]=gv.qd[2]; qd[2]=gv.qd[4];
-    }
-
-    spline.t0 = gv.curTime;
-    double T = 3.0;
-    spline.tf = gv.curTime + T;
-
-    spline.a0 = q;
-    spline.a1 = PrVector(3);        // zero velocity
-    spline.a2 = 3*(qd - q)/(T*T);
-    spline.a3 = -2*(qd - q)/(T*T*T);
+  computeTf(gv);
 }
 
 void initJtrackControl(GlobalVariables& gv) 
@@ -240,15 +209,20 @@ void initLineControl(GlobalVariables& gv)
 
 void initProj1Control(GlobalVariables& gv) 
 {
-  // Control Initialization Code Here
+  PrVector qd = gv.qd;
+  qd[0] = 0.096;
+  qd[1] = 0.967;
+  qd[2] = -1.016;
+  gv.qd = qd;
+  initNjtrackControl(gv);
 }
 
-void initProj2Control(GlobalVariables& gv) // C1: Circle Trajectory Init
+void initProj2Control(GlobalVariables& gv) 
 {
   spline.t0 = gv.curTime;
 }
 
-void initProj3Control(GlobalVariables& gv) // C4: Parabolic Blend (3 full circles = 6π radians)
+void initProj3Control(GlobalVariables& gv) 
 {
   spline.t0 = gv.curTime;
 }
@@ -305,23 +279,16 @@ void jgotoControl(GlobalVariables& gv)
   gv.tau = gv.kp * (gv.qd - gv.q) + gv.G - gv.kv * gv.dq; //PD-controller with gravity compensation
 }
 
-void njtrackControl(GlobalVariables& gv) // B2: Joint-Space PD + Gravity Compensation
+void njtrackControl(GlobalVariables& gv) 
 {
   if (gv.curTime > spline.tf) {
-        writeTau3DOF(gv, -gv.G);
-        return;
-    }
-
-    double t = gv.curTime - spline.t0;
-
-    PrVector qd  = spline.a0 + spline.a1*t + spline.a2*t*t + spline.a3*t*t*t;
-    PrVector dqd = spline.a1 + 2*spline.a2*t + 3*spline.a3*t*t;
-
-    PrVector q(3), dq(3);
-    extract3DOF(gv, q, dq);
-
-    PrVector tau3 = -gv.kp*(q-qd) - gv.kv*(dq-dqd) - gv.G;
-    writeTau3DOF(gv, tau3);
+    floatControl(gv);
+    return;
+  }
+  double t = gv.curTime - spline.t0;
+  PrVector qd  = spline.a0 + spline.a1*t + spline.a2*t*t + spline.a3*t*t*t;
+  PrVector dqd = spline.a1 + 2*spline.a2*t + 3*spline.a3*t*t;
+  gv.tau = -gv.kp*(gv.q-qd) - gv.kv*(gv.dq-dqd) + gv.G;
 }
 
 void jtrackControl(GlobalVariables& gv)
@@ -379,66 +346,113 @@ void lineControl(GlobalVariables& gv)
   floatControl(gv);  // Remove this line when you implement this controller
 }
 
-void proj1Control(GlobalVariables& gv) // B2: Joint-Space PD + Gravity Compensation
+void proj1Control(GlobalVariables& gv) 
 {
   njtrackControl(gv);
+  return;
 }
 
-void proj2Control(GlobalVariables& gv) // C2: Operational Space Circular Tracking
+void proj2Control(GlobalVariables& gv) 
 {
-  double w = 2*M_PI/5;
-    double t = gv.curTime - spline.t0;
+  //-- End-effector Trajectory --//
 
-    gv.xd[0] = 0.6 + 0.2*cos(w*t);
-    gv.xd[1] = 0.35+ 0.2*sin(w*t);
-    gv.xd[2] = 0;
+  // Circle Parameters
+  double radius = 0.2;
+  double x_center[2] = {0.6, 0.35};
 
-    gv.dxd[0] = -0.2*w*sin(w*t);
-    gv.dxd[1] =  0.2*w*cos(w*t);
-    gv.dxd[2] = 0;
+  // Trajectory Time
+  double t = gv.curTime - spline.t0;
 
-    F = -gv.kp*(gv.x-gv.xd) - gv.kv*(gv.dx-gv.dxd);
-    gv.Jtranspose.multiply(F, gv.tau);
-    gv.tau = gv.tau - gv.G;
+  // Velocity Magnitude
+  double vel = (2.0 * M_PI) / 5.0;
+
+  // Rotation to End-Effector Space
+  gv.xd[0] =  x_center[0] + radius * cos(vel * t);
+  gv.xd[1] =  x_center[1] + radius * sin(vel * t);
+  gv.xd[2] =  0.0;
+
+  // The derivative gives us the velocity component
+  gv.dxd[0] = -radius * vel * sin(vel * t);
+  gv.dxd[1] =  radius * vel * cos(vel * t);
+  gv.dxd[2] =  0.0;
+
+  //-- Operational Space Controller (OSC) --//
+  
+  // Control Law (PD)
+  PrVector endeff_F = -gv.kp * (gv.x - gv.xd) - gv.kv * (gv.dx - gv.dxd);
+  
+  // Jacobian
+  gv.Jtranspose.multiply(endeff_F, gv.tau);
+
+  // Gravity Compensation
+  gv.tau -= gv.G;
 }
 
 void proj3Control(GlobalVariables& gv) 
 {
-  double ddB = 2*M_PI/25;
-    double dB  = 2*M_PI/5;
-    double total = 6*M_PI;
+  //-- End-effector Trajectory --//
 
-    double t = gv.curTime - spline.t0;
-    double tb = dB/ddB;
+  // Circle Parameters
+  double radius = 0.2;
+  double x_center[2] = {0.6, 0.35};
+  double circle_iters = 3.0;
 
-    double beta, betaDot;
+  // Velocity and Acceleration Magnitudes
+  double vel_max = (2.0 * M_PI) / 5.0;
+  double acc_max = (2.0 * M_PI) / 25.0;
 
-    if (t < tb) {
-        betaDot = ddB*t;
-        beta = 0.5*ddB*t*t;
-    }
-    else if (t < tb + (total - ddB*tb*tb)/dB) {
-        double t2 = t - tb;
-        betaDot = dB;
-        beta = 0.5*ddB*tb*tb + dB*t2;
-    }
-    else {
-        double t3 = t - tb - (total - ddB*tb*tb)/dB;
-        betaDot = dB - ddB*t3;
-        beta = total - 0.5*ddB*t3*t3;
-    }
+  // Trajectory Times and Distances
+  double total_traj_len = 2 * M_PI * circle_iters;
 
-    gv.xd[0] = 0.6 + 0.2*cos(beta);
-    gv.xd[1] = 0.35+ 0.2*sin(beta);
-    gv.xd[2] = 0;
+  double t = gv.curTime - spline.t0;
+  double t_blend = vel_max / acc_max;  // Time to reach vel_max
+  
+  double blend_dist = acc_max * pow(t_blend, 2);  // Total blend distance for acceleration and deceleration phases
+  double const_dist = total_traj_len - blend_dist;
 
-    gv.dxd[0] = -0.2*betaDot*sin(beta);
-    gv.dxd[1] =  0.2*betaDot*cos(beta);
-    gv.dxd[2] = 0;
+  double t_const = const_dist / vel_max;
+  double total_time = 2 * t_blend + t_const;
+  
+  // Trajectory Phase Identification
+  double target_pos, target_vel;
+  if (t < t_blend)  // Acceleration Phase (parabolic)
+  {
+    target_vel = acc_max * t;
+    target_pos = 0.5 * acc_max * pow(t, 2);
+  }
+  else if (t < total_time - t_blend)  // Constant Velocity Phase (linear)
+  {
+    target_vel = vel_max;
+    target_pos = 0.5 * acc_max * pow(t_blend, 2) + vel_max * (t - t_blend);
+  }
+  else if (t < total_time)  // Deceleration Phase (parabolic)
+  {
+    target_vel = vel_max - acc_max * (t - (total_time - t_blend));
+    target_pos = total_traj_len - 0.5 * acc_max * pow(total_time - t, 2);
+  }
+  else
+  {
+    target_vel = 0.0;
+    target_pos = total_traj_len;
+  }
 
-    F = -gv.kp*(gv.x-gv.xd) - gv.kv*(gv.dx-gv.dxd);
-    gv.Jtranspose.multiply(F, gv.tau);
-    gv.tau = gv.tau - gv.G;
+  // Rotation to End-Effector Space
+  gv.xd[0] =  x_center[0] + radius * cos(target_pos);
+  gv.xd[1] =  x_center[1] + radius * sin(target_pos);
+  gv.xd[2] =  0.0;
+
+  gv.dxd[0] = -radius * target_vel * sin(target_pos);
+  gv.dxd[1] =  radius * target_vel * cos(target_pos);
+  gv.dxd[2] =  0.0;
+
+  // Control Law (PD)
+  PrVector endeff_F = -gv.kp * (gv.x - gv.xd) - gv.kv * (gv.dx - gv.dxd);
+  
+  // Jacobian
+  gv.Jtranspose.multiply(endeff_F, gv.tau);
+
+  // Gravity Compensation
+  gv.tau -= gv.G;
 }
 
 // *******************************************************************
