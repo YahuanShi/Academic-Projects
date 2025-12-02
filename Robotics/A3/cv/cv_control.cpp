@@ -49,7 +49,53 @@ void initVisualServoing(float _f, float _img_width, float _img_height, float _di
 */
 bool findCircleFeature(Mat& img, Mat &backproject, Circle& crcl)
 {
-  //IMPLEMENT THIS
+    // Prepare working image (clone prevents modifying backproject in cvMain)
+    Mat bp;
+    backproject.copyTo(bp);
+
+    // Smooth to reduce noise in the backprojection mask
+    GaussianBlur(bp, bp, Size(9,9), 2.0, 2.0);
+
+    // Optional: Canny to stabilize Hough voting
+    Mat edges;
+    Canny(bp, edges, 80, 160);
+
+    // Detect circles
+    vector<Vec3f> circles;
+    HoughCircles(edges, circles, HOUGH_GRADIENT,
+                 1.0,                 // accumulator resolution
+                 bp.rows * 0.25,      // minimum center distance
+                 150, 30,             // param1 (Canny), param2 (threshold)
+                 0, 0);               // automatic radius range
+
+    if (circles.empty())
+        return false;
+
+    // Choose the circle whose center is closest to image center
+    Point2f imgCenter(img.cols * 0.5f, img.rows * 0.5f);
+    float bestDist = FLT_MAX;
+    Vec3f bestCircle;
+
+    for (const auto& c : circles)
+    {
+        Point2f cc(c[0], c[1]);
+        float dist = norm(cc - imgCenter);
+        if (dist < bestDist)
+        {
+            bestDist = dist;
+            bestCircle = c;
+        }
+    }
+
+    // Write into output structure
+    crcl.center = Point2f(bestCircle[0], bestCircle[1]);
+    crcl.radius = bestCircle[2];
+
+    // Draw for debugging
+    circle(img, crcl.center, crcl.radius, Scalar(0,0,255), 2);
+    circle(img, crcl.center, 2, Scalar(0,255,0), -1);
+
+    return true;
 }
 
 /**
@@ -70,7 +116,18 @@ bool findCircleFeature(Mat& img, Mat &backproject, Circle& crcl)
 */
 void getImageJacobianCFToFF(PrMatrix3 &Jv, float u, float v, float z, float f, float diameter)
 {
-  //IMPLEMENT THIS
+  Jv[0][0] = -f/z;
+  Jv[0][1] =  0.0;
+  Jv[0][2] =  u/z;
+
+  Jv[1][0] =  0.0;
+  Jv[1][1] = -f/z;
+  Jv[1][2] =  v/z;
+
+  Jv[2][0] =  0.0;
+  Jv[2][1] =  0.0;
+  Jv[2][2] = (f*diameter)/(z*z);
+
 }
 
 /**
@@ -87,7 +144,7 @@ void getImageJacobianCFToFF(PrMatrix3 &Jv, float u, float v, float z, float f, f
 */
 float estimateCircleDepth(float f, float diameter, Circle &crcl)
 {
-  //IMPLEMENT THIS
+  return f * diameter / (2*crcl.radius);
 }
 
 /**
@@ -102,8 +159,9 @@ float estimateCircleDepth(float f, float diameter, Circle &crcl)
 */
 void transformFromOpenCVFToFF(PrVector3 vector_opencvf, PrVector3& vector_ff) 
 {
-  //IMPLEMENT THIS
-
+  vector_ff[0] = vector_opencvf[0] - img_width/2;
+  vector_ff[1] = vector_opencvf[1] - img_height/2;
+  vector_ff[2] = vector_opencvf[2];
 }
 
 /**
@@ -120,8 +178,9 @@ void transformFromOpenCVFToFF(PrVector3 vector_opencvf, PrVector3& vector_ff)
 */
 void transformVelocityFromCFToEEF(PrVector3 vector_cf, PrVector3& vector_eef)
 {
-  //IMPLEMENT THIS
-
+  vector_eef[0] = -vector_cf[1];
+  vector_eef[1] =  vector_cf[0];
+  vector_eef[2] =  vector_cf[2];
 }
 
 /**
@@ -139,7 +198,40 @@ void transformVelocityFromCFToEEF(PrVector3 vector_cf, PrVector3& vector_eef)
 */
 void transformVelocityFromEEFToBF(PrVector x_current_bf, PrVector3 vector_eef, PrVector3& vector_bf)
 {
-  //IMPLEMENT THIS
+    // x_current_bf = [x, y, z, qw, qx, qy, qz]
+    // Extract quaternion (ensure correct order: qw, qx, qy, qz)
+    float qw = x_current_bf[3];
+    float qx = x_current_bf[4];
+    float qy = x_current_bf[5];
+    float qz = x_current_bf[6];
+
+    // Construct rotation matrix R_bf_eef from quaternion
+    PrMatrix3 R;
+
+    R[0][0] = 1 - 2*(qy*qy + qz*qz);
+    R[0][1] = 2 * (qx*qy - qz*qw);
+    R[0][2] = 2 * (qx*qz + qy*qw);
+
+    R[1][0] = 2 * (qx*qy + qz*qw);
+    R[1][1] = 1 - 2*(qx*qx + qz*qz);
+    R[1][2] = 2 * (qy*qz - qx*qw);
+
+    R[2][0] = 2 * (qx*qz - qy*qw);
+    R[2][1] = 2 * (qy*qz + qx*qw);
+    R[2][2] = 1 - 2*(qx*qx + qy*qy);
+
+    // Convert velocity from EEF frame → Base frame
+    vector_bf[0] = R[0][0]*vector_eef[0] +
+                   R[0][1]*vector_eef[1] +
+                   R[0][2]*vector_eef[2];
+
+    vector_bf[1] = R[1][0]*vector_eef[0] +
+                   R[1][1]*vector_eef[1] +
+                   R[1][2]*vector_eef[2];
+
+    vector_bf[2] = R[2][0]*vector_eef[0] +
+                   R[2][1]*vector_eef[1] +
+                   R[2][2]*vector_eef[2];
 
 }
 
