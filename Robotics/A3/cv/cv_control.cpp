@@ -309,6 +309,19 @@ void controlRobot(Circle& crcl, PrVector &x, Mat& img, char *cmdbuf)
     desired_ee_pose_bf[1] += step_ee_bf[1];
     desired_ee_pose_bf[2] += step_ee_bf[2];
 
+    // Workspace limitation: sphere of radius 0.85m around the base
+    float r2 = desired_ee_pose_bf[0]*desired_ee_pose_bf[0]
+            + desired_ee_pose_bf[1]*desired_ee_pose_bf[1]
+            + desired_ee_pose_bf[2]*desired_ee_pose_bf[2];
+
+    float max_r = 0.85f;
+    if (r2 > max_r*max_r) {
+        // If outside, cancel this step (keep previous pose)
+        desired_ee_pose_bf[0] = x[0];
+        desired_ee_pose_bf[1] = x[1];
+        desired_ee_pose_bf[2] = x[2];
+    }
+
     //Command the robot to go to the new desired position:
     sprintf(cmdbuf,"goto %.4f %.4f %.4f %.4f %.4f %.4f %.4f", desired_ee_pose_bf[0], desired_ee_pose_bf[1], desired_ee_pose_bf[2], 0.50, 0.50, -0.50, 0.50);
 
