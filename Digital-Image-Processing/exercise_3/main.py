@@ -33,12 +33,8 @@ def process_color_image(src: np.ndarray, filter_mode: FilterMode, size: int, thr
     img = src.astype(np.float32)
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     h, s, v = cv2.split(hsv)
-    print("before usm:", h.dtype, s.dtype, v.dtype)
-    print("before usm shapes:", h.shape, s.shape, v.shape)
     v = usm(v, filter_mode, size, thresh, scale)
     hsv = cv2.merge((h, s, v))
-    print("after usm:", h.dtype, s.dtype, v.dtype)
-    print("after usm shapes:", h.shape, s.shape, v.shape)
     bgr = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
     return np.clip(bgr, 0, 255).astype(np.uint8)
 
