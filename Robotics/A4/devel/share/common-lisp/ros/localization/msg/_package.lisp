@@ -1,0 +1,11 @@
+(cl:defpackage localization-msg
+  (:use )
+  (:export
+   "<POSEWITHWEIGHT>"
+   "POSEWITHWEIGHT"
+   "<POSEWITHWEIGHTARRAY>"
+   "POSEWITHWEIGHTARRAY"
+   "<POSEWITHWEIGHTSTAMPED>"
+   "POSEWITHWEIGHTSTAMPED"
+  ))
+

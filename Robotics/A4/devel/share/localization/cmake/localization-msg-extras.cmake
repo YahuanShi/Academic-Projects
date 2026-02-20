@@ -1,0 +1,2 @@
+set(localization_MESSAGE_FILES "/home/student/Documents/Robotics/robotics-shuffle-2/workspace_assignment4/src/localization/msg/PoseWithWeight.msg;/home/student/Documents/Robotics/robotics-shuffle-2/workspace_assignment4/src/localization/msg/PoseWithWeightArray.msg;/home/student/Documents/Robotics/robotics-shuffle-2/workspace_assignment4/src/localization/msg/PoseWithWeightStamped.msg")
+set(localization_SERVICE_FILES "/home/student/Documents/Robotics/robotics-shuffle-2/workspace_assignment4/src/localization/srv/SetInitialPose.srv")

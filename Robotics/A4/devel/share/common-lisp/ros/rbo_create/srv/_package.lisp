@@ -1,0 +1,20 @@
+(cl:defpackage rbo_create-srv
+  (:use )
+  (:export
+   "LEDS"
+   "<LEDS-REQUEST>"
+   "LEDS-REQUEST"
+   "<LEDS-RESPONSE>"
+   "LEDS-RESPONSE"
+   "RESETODOM"
+   "<RESETODOM-REQUEST>"
+   "RESETODOM-REQUEST"
+   "<RESETODOM-RESPONSE>"
+   "RESETODOM-RESPONSE"
+   "TANK"
+   "<TANK-REQUEST>"
+   "TANK-REQUEST"
+   "<TANK-RESPONSE>"
+   "TANK-RESPONSE"
+  ))
+

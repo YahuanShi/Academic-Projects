@@ -1,0 +1,10 @@
+(cl:defpackage localization-srv
+  (:use )
+  (:export
+   "SETINITIALPOSE"
+   "<SETINITIALPOSE-REQUEST>"
+   "SETINITIALPOSE-REQUEST"
+   "<SETINITIALPOSE-RESPONSE>"
+   "SETINITIALPOSE-RESPONSE"
+  ))
+
